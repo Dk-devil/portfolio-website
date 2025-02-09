@@ -1,45 +1,31 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Daily Commit
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+  schedule:
+    - cron: "30 5 * * *"  # Runs daily at 5:30 AM UTC
+  workflow_dispatch:  # Allows manual triggering
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: 23f3004162@ds.study.iitm.ac.in
-        run: echo "Hello, world!"
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "23f3004162@ds.study.iitm.ac.in"
+
+      - name: Make Changes
+        run: |
+          echo "Last run: $(date)" > last_run.txt
+          git add last_run.txt
+
+      - name: Commit and Push Changes
+        run: |
+          git commit -m "Daily commit - $(date)"
+          git push
